@@ -1,0 +1,52 @@
+{
+    "1":{
+        "template_id": "sh0eIBJh31P-VlWOxiolUheJnx241bPWjj0TGG8oGcc",
+        "url": "www.bilibili.com",
+        "data": {
+            "head":{
+                "value": "Head of template",
+                "color": "#66ccff"
+            },
+            "key1":{
+                "value": "info in first line",
+                "color": "#cccaaa"
+            },
+            "key2":{
+                "value": "info in second line",
+                "color": "#cccfff"
+            },
+            "end":{
+                "value": "click to bilibili"
+            }
+        }
+    },
+    "2":{
+        "template_id": "6qWY59X1Dh_MWmCsgq1E2mbNDbvekr72CB9X80Xq6wc",
+        "data": {
+            "nickname":{
+                "value": "nickname",
+                "color": "#66ccff"
+            },
+            "openid":{
+                "value": "openid",
+                "color": "#cccaaa"
+            },
+            "sex":{
+                "value": "sex",
+                "color": "#cccfff"
+            },
+            "city":{
+                "value": "city"
+            },
+            "province":{
+                "value": "province"
+            },
+            "country":{
+                "value": "country"
+            },
+            "sub_time":{
+                "value": "subscribe_time"
+            }
+        }
+    }
+}

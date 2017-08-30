@@ -1,0 +1,18 @@
+{
+  "token": "ybToken39",
+
+  "accounts":
+    {
+      "gh_d30feda0533a":
+      {
+        "appId": "wxe38a29b36c6c1a9f",
+        "appSecret": "34a7be1038242c6784451a7dbba41b03"
+      },
+
+      "gh_eaa06ee97552":
+      {
+        "appId": "wx0bf749fa5ed8ca4a",
+        "appSecret": "7ec677eaa6dc9ca01fffeda3841743fc"
+      }
+    }
+}
