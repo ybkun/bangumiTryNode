@@ -1,0 +1,20 @@
+doctype html
+
+head
+    title infoBind
+
+body
+    div
+        h1 infomation binding
+    div
+        h3 wechat infomation
+        p nickname: #{nicname}
+        p openid: #{openid}
+
+    div
+        form(method="SET")
+            p username
+                input(type="text", name="username")
+            p password
+                input(type="password", name="password")
+            button(type="submit") submit

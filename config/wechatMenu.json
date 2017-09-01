@@ -1,0 +1,35 @@
+{
+    "button": [
+        {
+            "name": "模板消息", 
+            "sub_button": [
+                {
+                    "type": "click", 
+                    "name": "固定模板", 
+                    "key": "BUTTON_TEMPLATE_TEST"
+                }, 
+                {
+                    "type": "click", 
+                    "name": "个人信息", 
+                    "key": "BUTTON_USER_INFO"
+                }
+            ]
+        }, 
+        {
+            "name": "新番进度", 
+            "sub_button": [
+                {
+                    "name": "省流量",
+                    "type": "click", 
+                    "key" : "BUTTON_BANGUMI"
+                },
+                {
+                    "name": "正常",
+                    "type": "click", 
+                    "key" : "BUTTON_BANGUMI_WIFI"
+                }
+            ]
+            
+        }
+    ]
+}

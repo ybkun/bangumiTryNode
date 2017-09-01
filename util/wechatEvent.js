@@ -3,13 +3,17 @@
  */
 
 const sendTemplate = require("./sendTemplate");
-const getUserInfo = require("./getUserInfo")
-const sendUserInfoTemplate = require("./sendUserInfoTemplate")
+const getUserInfo = require("./getUserInfo");
+const sendUserInfoTemplate = require("./sendUserInfoTemplate");
+const sendEntry = require("./sendEntry")
+var newOnce = require("./checkRequest").newOnce;
 
 exports.Click = function Click(official, user, EventKey){
+    var opt = {};
+    var query = {};
     switch(EventKey){
         case 'BUTTON_TEMPLATE_TEST':
-            var opt = {
+            opt = {
                 head: "Head of template__change",
                 key1: "info in first line",
                 key2: "info in second line",
@@ -20,6 +24,13 @@ exports.Click = function Click(official, user, EventKey){
         case 'BUTTON_USER_INFO':
             sendUserInfoTemplate(official,user,'en');
             break;
+        case 'BUTTON_BANGUMI_WIFI':
+            sendEntry(official,user,true);
+            break;
+        case 'BUTTON_BANGUMI':
+            sendEntry(official,user,false)
+            break;
+        
         default:
             console.error("Unexpected Click EventKey: ",EventKey);
     }

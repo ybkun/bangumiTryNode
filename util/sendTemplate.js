@@ -16,7 +16,7 @@ let tempSendList = {}
  */
 exports.send = (official,user, opt, queryObj, templateID)=>{
     // var _atk = atk.access_token;
-    var tempData = templates[templateID];
+    var tempData = deepcopy(templates[templateID]);
     if(!tempData){
         console.error("try to send unexpected template message, templateID:", templateID);
         return false;
@@ -34,6 +34,14 @@ exports.send = (official,user, opt, queryObj, templateID)=>{
     console.log("tempData",tempData);
     resend(official,tempData,3);
 };
+
+function deepcopy(obj){
+    var ret = {};
+    for(var key in obj){
+        ret[key] = typeof(obj[key])==='object' ? deepcopy(obj[key]): obj[key];
+    }
+    return ret;
+}
 
 /**
  * for resend template
@@ -96,7 +104,6 @@ function resend(official, tempData, retry){
             }
             else{
                 console.warn('template sending is rejected by wechat server')
-                console.log(data.errcode);
             }
         });
     });    

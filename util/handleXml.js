@@ -7,9 +7,9 @@ const sendUserInfoTemplate = require("./sendUserInfoTemplate");
 
 const helpInfo = json2string(helpInfoJson);
 
-/**Require custom function modules below  */
-const testTemplate = require("./sendTemplate"); // remove 
-/**END */
+
+const sendTemplate = require("./sendTemplate");  
+
 
 let handling = [];
 
@@ -89,7 +89,7 @@ module.exports = (req, res, data)=>{
             switch(msg){
                 case /^get template/.test(msg) && msg:
                     ifResponseMessage = false;
-                    testTemplate(official, user, templateID=1);
+                    sendTemplate.send(official, user,{},{}, templateID=1);
                     break;
                 case 'help':
                 case '?':

@@ -1,0 +1,18 @@
+{
+    "appenders":{
+        "console":{
+            "type":"console",
+            "replaceConsole": true
+        },
+        "datefile":{
+            "type": "dateFile",
+            "filename": "./logs/logger",
+            "pattern": "-yyyy-MM-dd-hh.log",
+            "alwaysIncludePattern": true,
+            "backups": 7,
+            "replaceConsole": true
+        }
+    },
+    "categories":{"default": {"appenders":["console", "datefile"], "level":"info"} },
+    "replaceConsole": true
+}
