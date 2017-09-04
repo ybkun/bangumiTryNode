@@ -6,7 +6,7 @@ const sendTemplate = require("./sendTemplate");
 const getUserInfo = require("./getUserInfo");
 const sendUserInfoTemplate = require("./sendUserInfoTemplate");
 const sendEntry = require("./sendEntry")
-var newOnce = require("./checkRequest").newOnce;
+// var newOnce = require("./checkRequest").newOnce;
 
 exports.Click = function Click(official, user, EventKey){
     var opt = {};

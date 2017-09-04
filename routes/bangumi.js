@@ -7,8 +7,8 @@ const checkOnce = require("../util/checkRequest").checkOnce;
 
 router.get('/', 
     (req, res, next)=>{
-        console.log("GET /bangumi");
-        if(req.session.username || checkOnce(req.query)){
+        // console.log("GET /bangumi");
+        if(req.session.username || checkOnce(req.query.user, req.query.once)){
             next();
         }
         else{
@@ -19,7 +19,7 @@ router.get('/',
 );
 
 router.get('/login', (req,res)=>{
-    console.log("GET /bangumi/login");
+    // console.log("GET /bangumi/login");
     if(req.session.username){
         return res.redirect('/bangumi');
     }
@@ -27,6 +27,6 @@ router.get('/login', (req,res)=>{
 })
 
 router.post('/login',loginController);
-router.route('/').put(bangumiController.infobind)
+router.post('/bind',bangumiController.infobind)
 
 module.exports = router;

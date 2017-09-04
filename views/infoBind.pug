@@ -2,19 +2,25 @@ doctype html
 
 head
     title infoBind
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="/javascripts/infoBind.js"></script>
 
 body
     div
         h1 infomation binding
     div
         h3 wechat infomation
-        p nickname: #{nicname}
-        p openid: #{openid}
+        div nickname: 
+            p(id="nickname") #{nickname}
+        div openid: 
+            p(id="openid") #{openid}
+        
 
     div
-        form(method="SET")
-            p username
-                input(type="text", name="username")
-            p password
-                input(type="password", name="password")
-            button(type="submit") submit
+        p username
+            input(type="text", id="username")
+        p password
+            input(type="password", id="password")
+        div once: 
+            p(id="once") #{once}
+        button(id="submit") submit

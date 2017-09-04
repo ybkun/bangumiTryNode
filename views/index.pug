@@ -1,5 +1,24 @@
 extends layout
 
+mixin anime(title, priority, espisode, day, total, imgurl)
+    .container
+
+block variables
+  - const page_title = username;
+
+append javascripts
+    script(src="https://cdn.socket.io/socket.io-1.2.0.js")
+    script(src="https://code.jquery.com/jquery-1.11.1.js")
+    script(src="/javasvripts/socket_anime.js")
+
+block header
+    .container(id="header")
+        .row 
+            .col-md-2(class="bg-info pull-left") webtitle
+
 block content
-  h1= title
-  p Welcome to #{title}
+    .container(id="mainbody")
+        .row(id="bootstraprow")
+            .col-md-6 ahaha
+
+

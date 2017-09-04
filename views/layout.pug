@@ -1,7 +1,35 @@
+block variables
+  - const page_title = "Default Title";
+
 doctype html
-html
+html(lang="en")
   head
-    title= title
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    // use Unicode
+    meta(charset="utf-8")
+    // force IE to use the lastest rendering engine
+    meta(http-equiv="X-UA-Compatible", content="IE=edge")
+    // force browser to scale the app to the size of window space available
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+
+    block title
+      title= page_title
+
+    block stylesheets
+      link(rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css", integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u", crossorigin="anonymous")
+
+    // bring support for HTML5 and CSS3 to old IEs
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
   body
+    block header
+
     block content
+    
+    block footer
+
+    block javascripts
+      script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js")
+      script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js", integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7", crossorigin="anonymous")

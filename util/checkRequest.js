@@ -49,7 +49,12 @@ function randomStr(length){
 
 
 let onceList = {};
-exports.newOnce = function(user){
+exports.newOnce = function(user,sec){
+  console.log("call newOnce\n",onceList);
+
+  if(!sec){
+    sec = 120;
+  }
   if(onceList[user]){
     clearTimeout(onceList[user].id_of_timeout);
   }
@@ -60,16 +65,18 @@ exports.newOnce = function(user){
   onceList[user].id_of_timeout = setTimeout(()=>{
     console.log("once timeout:%s(%s)",onceList[user].once, user)
     delete onceList[user];
-  },120000)
+  },sec*1000);
+  console.log("end of  newOnce\n",onceList);
   return once;
 }
-exports.checkOnce = function(query){
-  // console.log("call checkOnce")
-  // console.log("oncelist: ",onceList)
+exports.checkOnce = function(openid,once){
+  console.log("call checkOnce")
+  console.log("oncelist: ",onceList)
   // console.log("query:",query)
-  let openid = query.user;
-  let once = query.once;
+  // let openid = query.user;
+  // let once = query.once;
   if(!openid || !once || !onceList[openid]){
+    // console.log("once wrong: onceArgu=>%s, onceInList=>%s",once,onceList[openid])
     return false;
   }
   if(once===onceList[openid].once){

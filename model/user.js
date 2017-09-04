@@ -12,7 +12,6 @@ var animeListSchema = new Schema({
     animeID:{
         type: String,
         required: true,
-        unique: true
     }
 });
 
@@ -46,7 +45,7 @@ var userSchema = new Schema({
 
 var adminSchema = userSchema.clone();
 
-var userModel = mongoose.model('user',userSchema);
+var userModel = db.model('userInfo',userSchema);
 // var adminModel = mongoose.model('adminModel',adminSchema);
 
 // exports.user = userModel;
@@ -66,12 +65,12 @@ exports.user = {
         }
         userModel.findOne(
             {openid: openid}, 
-            {_id:0,password:0}, 
+            {_id:0,password:0},
             callback
         )
     },
     getPw: (username,callback)=>{
-        userModel.findOne({username:username}, {_id:0,password:1}, callback)
+        userModel.findOne({username:username}, {_id:0,openid:1,password:1}, callback)
     },
     setPw: (username,pw,callback)=>{
         userModel.update({username:username},{password:pw});
@@ -87,6 +86,13 @@ exports.user = {
             openid: openid,
             nickname: nickname
         });
-        userEntity.save();
+        userEntity.save((err)=>{
+            if(err){
+                console.error(err);
+            }
+            else{
+                console.log("insert new doc in user");
+            }
+        });
     }
 }
