@@ -1,7 +1,11 @@
 extends layout
 
 mixin anime(title, priority, espisode, day, total, imgurl)
-    .container
+    .container anime
+
+mixin button_in_dropdown(text,link)
+    li 
+        a(href=link) #{text}
 
 block variables
   - const page_title = username;
@@ -12,13 +16,24 @@ append javascripts
     script(src="/javasvripts/socket_anime.js")
 
 block header
-    .container(id="header")
-        .row 
-            .col-md-2(class="bg-info pull-left") webtitle
+    nav(class="navbar navbar-default navbar-fixed-top")
+        .container
+            .row
+                .col-xs-4 webTitle
+                .pull-right.btn-group(role="group")
+                    button.btn.btn-default.dropdown-toggle(data-toggle="dropdown",aria-haspopup="true",aria-expanded="false",type="button" )
+                        span.glyphicon.glyphicon-th-list
+                    ul.dropdown-menu
+                        +button_in_dropdown("logout","#")
+                        +button_in_dropdown("add to db","#")                 
+                .col-xs-2.pull-right #{username} username
 
+                
 block content
     .container(id="mainbody")
         .row(id="bootstraprow")
             .col-md-6 ahaha
+    -for(var i=0;i<100;i++)
+        +anime
 
 
