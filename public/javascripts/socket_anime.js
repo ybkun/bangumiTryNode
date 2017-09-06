@@ -4,18 +4,26 @@ var selectedYear = dt.getFullYear();
 
 
 socket.on('connect', ()=>{
+    socket.emit("req init")
 
 });
 
-/**
- * 
- * @param {int} year 
- */
-function clickYear(year){
-    socket.emit('clientClickYear', year);
-}
+socke.on("res to year change", ()=>{
 
-function episodeAdd(year,animeID)
+})
+
+
+function episodeAdd(year,animeID){}
+
+function selectYear(year){
+    var before = document.getElementById(selectedYear);
+    before.removeAttribute('class');
+    selectedYear = year;
+    var yearItem = document.getElementById(year);
+    yearItem.setAttribute("class","active");
+
+    socket.emit("year change", year);
+}
 
 // $(function () {
 //     var socket = io();

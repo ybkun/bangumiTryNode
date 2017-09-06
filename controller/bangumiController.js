@@ -30,13 +30,48 @@ exports.main = (req,res)=>{
             else{
                 req.session.username = data.username;
                 req.session.openid = data.openid;
-                res.render("index",{nickname:data.nickname})
+                req.session.nickname = data.nickname;
+                uname = data.nickname;
+
+                var start=2010;
+                for(key in data.watch){
+                    if(key<start){
+                        start=key;
+                    }
+                }
+                res.render("index",
+                    {
+                        username: uname,
+                        start:start,
+                        end:(new Date()).getFullYear()
+                    }
+                );
             }
         });
     }
-    else{ // session valid, login from normal web
-        // console.warn("incomplete part, should go through this fetch");
-        res.render("index",{username: uname})
+    else{
+        user.findUserByName(uname,(err,data)=>{
+            if(err){
+                console.error("database error: ",err);
+                return res.send("error in server, please wait a moment and retry");
+            }
+            var start=2010;
+            for(key in data.watch){
+                if(key<start){
+                    start=key;
+                }
+            }
+            if(req.session.nickname){
+                uname = req.session.nickname;
+            }
+            res.render("index",
+                {
+                    username: uname,
+                    start:start,
+                    end:(new Date()).getFullYear()
+                }
+            );
+        });
     }
 };
 
@@ -59,5 +94,6 @@ exports.infobind = (req, res)=>{
 
     req.session.username = uname;
     req.session.openid = openid;
+    req.session.nickname = nickname;
     res.send(req.baseurl);
 }

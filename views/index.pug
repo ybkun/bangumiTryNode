@@ -3,37 +3,96 @@ extends layout
 mixin anime(title, priority, espisode, day, total, imgurl)
     .container anime
 
+mixin animeContainer(...animes)
+    .container
+
+
 mixin button_in_dropdown(text,link)
     li 
         a(href=link) #{text}
 
+mixin year_item(text)
+    -var click = "selectYear(" + text + ")"
+    li(id=text)
+        a(href="#",onclick=click) #{text}
+            span.sr-only (current)
+
+mixin first_year_item
+    -var text=end
+    -var click = "selectYear(" + text + ")"
+    li.active(id=text)
+        a(href="#", onclick=click) #{text}
+
 block variables
   - const page_title = username;
+
+append style   
+    style(type="text/css")
+        | body { padding-top: 70px; }
+
+append stylesheets
+    link(rel="stylesheet" href="/stylesheets/dashboard.css")
 
 append javascripts
     script(src="https://cdn.socket.io/socket.io-1.2.0.js")
     script(src="https://code.jquery.com/jquery-1.11.1.js")
-    script(src="/javasvripts/socket_anime.js")
+    script(src="/javascripts/socket_anime.js")
+    script(src="/socket.io/socket.io.js")
 
 block header
-    nav(class="navbar navbar-default navbar-fixed-top")
-        .container
-            .row
-                .col-xs-4 webTitle
-                .pull-right.btn-group(role="group")
-                    button.btn.btn-default.dropdown-toggle(data-toggle="dropdown",aria-haspopup="true",aria-expanded="false",type="button" )
-                        span.glyphicon.glyphicon-th-list
-                    ul.dropdown-menu
-                        +button_in_dropdown("logout","#")
-                        +button_in_dropdown("add to db","#")                 
-                .col-xs-2.pull-right #{username} username
+    nav(class="navbar navbar-inverse navbar-fixed-top")
+        .container-fluid
+            .navbar-header
+                button.navbar-toggle.collapsed(data-toggle="collapse",data-target="#navbar", aria-expanded="false",aria-controls="navbar")
+                    span.sr-only Toggle navigation
+                    span.icon-bar
+                    span.icon-bar
+                    span.icon-bar
+                a.navbar-brand(href="#") Anime Schedule
+            //- end of navbar=header
+            #navbar.navbar-coolapse.coolapse
+                ul.nav.navbar-nav.navbar-right 
+                    li
+                        a(href="#") #{username}
+                    li
+                        a(href="#",onclick="logout()") logout
+
+                        
+                form.navbar-form.navbar-right
+                    input.form-control(type="text",placeholder="Search...")
 
                 
 block content
-    .container(id="mainbody")
-        .row(id="bootstraprow")
-            .col-md-6 ahaha
-    -for(var i=0;i<100;i++)
-        +anime
+    .container-fluid(id="mainbody")
+        .row
+            .col-sm-3.col-md-2.sidebar
+                div(style="overflow-y:auto;overflow-x: hidden; height:300px")
+                    ul.nav.nav-sidebar
+                        +first_year_item
+                        -for(var i=end-1;i>=start;i--)
+                            +year_item(i)
+                hr
+                ul.nav.nav-sidebar
+                    li#spList
+                        a(href="#", onclick="getSpList()") SP 
 
+            .col-sm-9.col-sm-offset-3.col-md-10.col-md-offset-2.main
+                ul#seasontap.nav.nav-tabs
+                    li.active(style="width: 25%")
+                        a(href="#fuyu" data-toggle="tab") 冬
+                    li(style="width: 25%")
+                        a(href="#haru", data-toggle="tab") 春
+                    li(style="width: 25%")
+                        a(href="#natsu" data-toggle="tab") 夏
+                    li(style="width: 25%")
+                        a(href="#aki" data-toggle="tab") 秋
+                #myTabContent.tab-content
+                    #fuyu.tab-pane.fade.in.active
+                        
+                    #haru.tab-pane.fade 
+                        
+                    #natsu.tab-pane.fade    
+                        
+                    #aki.tab-pane.fade  
+                        
 

@@ -10,7 +10,10 @@ module.exports = (server)=>{
         
         socket.on('disconnect', (username, openid)=>{
             console.log("%s(%s) disconnect with socket",username, openid)
-        })
+        });
+        socket.on('req init',()=>{
+            console.log("user require init page\n%s",socket)
+        });
     });
 
     return io;

@@ -11,8 +11,8 @@ html(lang="en")
     // force browser to scale the app to the size of window space available
     meta(name="viewport", content="width=device-width, initial-scale=1")
 
-    style(type="text/css")
-      | body { padding-top: 70px; }
+    block style
+      
 
     block title
       title= page_title
@@ -34,5 +34,5 @@ html(lang="en")
     block footer
 
     block javascripts
-      script(src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js")
-      script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js", integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7", crossorigin="anonymous")
+      script(src="https://cdn.bootcss.com/jquery/2.0.0/jquery.js")
+      script(src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js", integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa", crossorigin="anonymous")

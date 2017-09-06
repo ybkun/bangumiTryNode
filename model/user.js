@@ -1,4 +1,5 @@
 var mongoose = require("mongoose");
+mongoose.Promise = global.Promise;
 var Schema = mongoose.Schema;
 mongoose.connect('mongodb://localhost/bangumiMag');
 
@@ -17,7 +18,7 @@ var animeListSchema = new Schema({
 
 var watchSchema = new Schema({
     year:{
-        type: Date
+        type: Number
     },
     animeList:[animeListSchema]
 });
@@ -39,7 +40,7 @@ var userSchema = new Schema({
     nickname: {
         type:String
     },
-    watch:[watchSchema]
+    watch:{}
 });
 
 
@@ -67,10 +68,55 @@ exports.user = {
             {openid: openid}, 
             {_id:0,password:0},
             callback
-        )
+        );
+    },
+    getAnimeList: (username, year, callback)=>{
+        userModel.findOne(
+            {username:username},
+            {_id:0,watch:1},
+            (err,data)=>{
+                if(err){
+                    throw err; // !!!!!
+                }
+                var animeList = data.watch[year];
+                callback(null, animeList);
+            }
+        );
+    },
+    addAnime: (username, year, animeID, callback)=>{
+        userModel.findOne(
+            {username:username},
+            (err, user)=>{
+                var new_watch = user.watch;
+                var list = new_watch[year];
+                // console.log(list)
+                if(!list){
+                    new_watch[year] = [animeID];
+                }
+                else{
+                    for(var index in list){
+                        if(list[index] == animeID){
+                            return callback("dbError: animeID duplicate");
+                        }
+                    }
+                    list.push(animeID)
+                }
+                // console.log("user:",user);
+                // console.log("new_watch:",new_watch);
+                userModel.update(
+                    {username:username},
+                    {$set:{watch:new_watch}},
+                    callback
+                );
+            }
+        );
     },
     getPw: (username,callback)=>{
-        userModel.findOne({username:username}, {_id:0,openid:1,password:1}, callback)
+        userModel.findOne(
+            {username:username},
+            {_id:0,openid:1,password:1,nickname:1},
+            callback
+        );
     },
     setPw: (username,pw,callback)=>{
         userModel.update({username:username},{password:pw});

@@ -12,6 +12,7 @@ module.exports = (req, res)=>{
         if(data!==null && post_data.password === data.password){
             req.session.username = post_data.username
             req.session.openid = data.openid;
+            req.session.nickname = data.nickname;
             res.redirect('/bangumi');
             return true;
         }
