@@ -43,7 +43,8 @@ exports.main = (req,res)=>{
                     {
                         username: uname,
                         start:start,
-                        end:(new Date()).getFullYear()
+                        end:(new Date()).getFullYear(),
+                        once: newOnce(uname,20)
                     }
                 );
             }
@@ -68,7 +69,8 @@ exports.main = (req,res)=>{
                 {
                     username: uname,
                     start:start,
-                    end:(new Date()).getFullYear()
+                    end:(new Date()).getFullYear(),
+                    once: newOnce(uname,20)
                 }
             );
         });

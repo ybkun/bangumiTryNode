@@ -10,7 +10,7 @@ module.exports = (req, res)=>{
         console.log("post: ",post_data);
         console.log("database: ",data);
         if(data!==null && post_data.password === data.password){
-            req.session.username = post_data.username
+            req.session.username = post_data.username;
             req.session.openid = data.openid;
             req.session.nickname = data.nickname;
             res.redirect('/bangumi');
