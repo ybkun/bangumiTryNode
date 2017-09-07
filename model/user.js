@@ -9,18 +9,19 @@ db.once('open', function() {
     console.log("connect to mongodb: bangumiMag");
 });
 
-var animeListSchema = new Schema({
-    animeID:{
-        type: String,
-        required: true,
-    }
-});
 
 var watchSchema = new Schema({
-    year:{
-        type: Number
+    username:{
+        type: String,
+        required: true
     },
-    animeList:[animeListSchema]
+    year:{
+        type: Number,
+        required: true
+    },
+    animeOfYear:{} //{animeID:
+                   //  {priority: 1~10,  default-5, 1->best, 10->worst
+                   //   music_flag: true/false}
 });
 
 var userSchema = new Schema({
@@ -39,18 +40,15 @@ var userSchema = new Schema({
     },
     nickname: {
         type:String
-    },
-    watch:{}
+    }
 });
 
 
 var adminSchema = userSchema.clone();
 
 var userModel = db.model('userInfo',userSchema);
-// var adminModel = mongoose.model('adminModel',adminSchema);
 
-// exports.user = userModel;
-// exports.admin = adminModel;
+var watchModel = db.model("watch",watchSchema);
 
 exports.user = {
     findUserByName: (username, callback)=>{
@@ -84,32 +82,47 @@ exports.user = {
         );
     },
     addAnime: (username, year, animeID, callback)=>{
-        userModel.findOne(
-            {username:username},
-            (err, user)=>{
-                var new_watch = user.watch;
-                var list = new_watch[year];
-                // console.log(list)
-                if(!list){
-                    new_watch[year] = [animeID];
+        // userModel.findOne(
+        //     {username:username},
+        //     (err, user)=>{
+        //         var new_watch = user.watch;
+        //         var list = new_watch[year];
+        //         // console.log(list)
+        //         if(!list){
+        //             new_watch[year] = [animeID];
+        //         }
+        //         else{
+        //             for(var index in list){
+        //                 if(list[index] == animeID){
+        //                     return callback("dbError: animeID duplicate");
+        //                 }
+        //             }
+        //             list.push(animeID)
+        //         }
+        //         // console.log("user:",user);
+        //         // console.log("new_watch:",new_watch);
+        //         userModel.update(
+        //             {username:username},
+        //             {$set:{watch:new_watch}},
+        //             callback
+        //         );
+        //     }
+        // );
+        watchModel.find(
+            {username:username,year:year},
+            {_id:0, animeOfYear:1},
+            (err, data)=>{
+                var animeList = data.animeOfYear;
+                if(animeList[animeID]){
+                    return callback("animeID already exist");
                 }
-                else{
-                    for(var index in list){
-                        if(list[index] == animeID){
-                            return callback("dbError: animeID duplicate");
-                        }
-                    }
-                    list.push(animeID)
+                animeList[animeID] = {
+                    priority: 5,
+                    music_flag: false
                 }
-                // console.log("user:",user);
-                // console.log("new_watch:",new_watch);
-                userModel.update(
-                    {username:username},
-                    {$set:{watch:new_watch}},
-                    callback
-                );
+                // 改变的信息占读写数据的比例太低，修改设计 --20170907
             }
-        );
+        )
     },
     getPw: (username,callback)=>{
         userModel.findOne(
