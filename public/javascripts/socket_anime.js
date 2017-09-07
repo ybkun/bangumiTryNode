@@ -1,17 +1,20 @@
 $(function(){    
-    var socket = io();
+    var socket = io({
+        query:{
+            username: document.getElementById("username").innerHTML,
+            once: document.getElementById("once").innerHTML
+        }
+    });
     var dt = new Date();
     var selectedYear = dt.getFullYear();
 
-    console.log("socket:",socket)
-    socket.on('connect', ()=>{
-        console.log($("#username"));
-        console.log($("#once"));
-        socket.emit("check once", 
-            document.getElementById("username").innerHTML,
-            document.getElementById("once").innerHTML
-        );
-    });
+    
+    // socket.on('connect', ()=>{
+    //     socket.emit("check once", 
+    //         document.getElementById("username").innerHTML,
+    //         document.getElementById("once").innerHTML
+    //     );
+    // });
     socket.on("disconnect",(reason)=>{
         alert("disconnect with server for "+reason);
     });
