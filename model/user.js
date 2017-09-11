@@ -6,9 +6,12 @@ mongoose.connect('mongodb://localhost/bangumiMag');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
-    console.log("connect to mongodb: bangumiMag");
+    console.log("user.js connect to mongodb: bangumiMag");
 });
 
+var rangeList = require('../util/rangeList');
+
+const SEASONS = ['fuyu','haru','natsu','aki'];
 
 var watchSchema = new Schema({
     username:{
@@ -19,9 +22,31 @@ var watchSchema = new Schema({
         type: Number,
         required: true
     },
-    animeOfYear:{} //{animeID:
-                   //  {priority: 1~10,  default-5, 1->best, 10->worst
-                   //   music_flag: true/false}
+    animeID:{
+        type: String,
+        required: true
+    },
+    priority:{
+        type: Number,
+        enum: rangeList(1,11),
+        default: 5
+    },
+    music_flag:{
+        type: Boolean,
+        default: false
+    },
+    episode:{
+        type: Number,
+        required: true,
+        validate:{
+            validator: (v)=>{
+                return v>=0;
+            },
+            message: '{VALUE} is not a valid episode number!'
+        },
+        default: 0
+    },
+    remarks: {}
 });
 
 var userSchema = new Schema({
@@ -69,58 +94,38 @@ exports.user = {
         );
     },
     getAnimeList: (username, year, callback)=>{
-        userModel.findOne(
-            {username:username},
-            {_id:0,watch:1},
-            (err,data)=>{
-                if(err){
-                    throw err; // !!!!!
-                }
-                var animeList = data.watch[year];
-                callback(null, animeList);
-            }
-        );
-    },
-    addAnime: (username, year, animeID, callback)=>{
-        // userModel.findOne(
-        //     {username:username},
-        //     (err, user)=>{
-        //         var new_watch = user.watch;
-        //         var list = new_watch[year];
-        //         // console.log(list)
-        //         if(!list){
-        //             new_watch[year] = [animeID];
-        //         }
-        //         else{
-        //             for(var index in list){
-        //                 if(list[index] == animeID){
-        //                     return callback("dbError: animeID duplicate");
-        //                 }
-        //             }
-        //             list.push(animeID)
-        //         }
-        //         // console.log("user:",user);
-        //         // console.log("new_watch:",new_watch);
-        //         userModel.update(
-        //             {username:username},
-        //             {$set:{watch:new_watch}},
-        //             callback
-        //         );
-        //     }
-        // );
         watchModel.find(
             {username:username,year:year},
+            {_id:0},
+            (err,docs)=>{
+                if(err){
+                    throw err; // !!!!
+                }
+                callback(err,docs);
+            }
+        )
+    },
+    addAnime: (username, year, animeID, callback)=>{
+        watchModel.findOne(
+            {username:username,year:year,animeID:animeID},
             {_id:0, animeOfYear:1},
-            (err, data)=>{
-                var animeList = data.animeOfYear;
-                if(animeList[animeID]){
-                    return callback("animeID already exist");
+            (err, doc)=>{
+                if(err){
+                    throw err; // !!!!
                 }
-                animeList[animeID] = {
-                    priority: 5,
-                    music_flag: false
+                if(doc !== null){
+                    return callback("dbError: animeID duplicate");
                 }
-                // 改变的信息占读写数据的比例太低，修改设计 --20170907
+                else{
+                    watchModel.create(
+                        [{
+                            username:username,
+                            year: year,
+                            animeID: animeID,
+                        }],
+                        callback
+                    );
+                }
             }
         )
     },

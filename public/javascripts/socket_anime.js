@@ -1,3 +1,10 @@
+// var dt = new Date();
+var tabs = {
+    "fuyu" : document.getElementById("fuyu"),
+    "haru" : document.getElementById("haru"),
+    "natsu" : document.getElementById("natsu"),
+    "aki" : document.getElementById("aki")
+};
 $(function(){    
     var socket = io({
         query:{
@@ -5,39 +12,31 @@ $(function(){
             once: document.getElementById("once").innerHTML
         }
     });
-    var dt = new Date();
+    
     var selectedYear = dt.getFullYear();
 
     
-    // socket.on('connect', ()=>{
-    //     socket.emit("check once", 
-    //         document.getElementById("username").innerHTML,
-    //         document.getElementById("once").innerHTML
-    //     );
-    // });
     socket.on("disconnect",(reason)=>{
         alert("disconnect with server for "+reason);
     });
 
-    socket.on("res to year change", ()=>{
+    socket.on("client init", (animeList)=>{
+        var animeItem;
+        var animeDiv
+        
+        for(var index in animeList){
+            animeItem = animeList[index];
+            animeDiv = document.createElement("div");
+            
 
+        }
     });
 
     socket.on("reconnect",(attemptNum)=>{
         console.log("reconnect: ",attemptNum)
     })
 
-    function episodeAdd(year,animeID){}
 
-    function selectYear(year){
-        var before = document.getElementById(selectedYear);
-        before.removeAttribute('class');
-        selectedYear = year;
-        var yearItem = document.getElementById(year);
-        yearItem.setAttribute("class","active");
-
-        socket.emit("year change", year);
-    }
 
     // $(function () {
     //     var socket = io();
@@ -67,3 +66,15 @@ $(function(){
     //     })
     // });
 })
+
+function episodeAdd(year,animeID){}
+
+function selectYear(year){
+    var before = document.getElementById(selectedYear);
+    before.removeAttribute('class');
+    selectedYear = year;
+    var yearItem = document.getElementById(year);
+    yearItem.setAttribute("class","active");
+
+    socket.emit("year change", year);
+}
