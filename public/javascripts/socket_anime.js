@@ -13,6 +13,7 @@ $(function(){
         }
     });
     
+    var dt = new Date();
     var selectedYear = dt.getFullYear();
 
     
@@ -20,15 +21,49 @@ $(function(){
         alert("disconnect with server for "+reason);
     });
 
-    socket.on("client init", (animeList)=>{
+    socket.on("client init", (animeList, wifi)=>{
+        console.log("Event: client init");
+        console.log(animeList);
+
         var animeItem;
-        var animeDiv
+        var animeBlock;
+        var priority;
+        var checkbox;
+        var episode;
+
+        var seasonNode;
         
         for(var index in animeList){
             animeItem = animeList[index];
-            animeDiv = document.createElement("div");
             
+            console.log("handling ",animeItem);
 
+            animeBlock = document.getElementById("animeNodeTemp").cloneNode(true);
+            animeBlock.setAttribute("id",animeItem.animeID);
+            animeBlock.getElementsByClassName("anime-title")[0].innerHTML = animeItem.title;
+            animeBlock.getElementsByClassName("description")[0].innerHTML = animeItem.description;
+
+            priority = animeBlock.getElementsByClassName("priority")[0];
+            priority.innerHTML = animeItem.priority;
+            priority.onclick = "setPriority("+animeItem.animeID+")";
+
+            checkbox = animeBlock.getElementsByClassName("music-flag")[0];
+            checkbox.checked = animeItem.music_flag;
+            checkbox.onclick = "setMusicFlag(this,"+animeItem.animeID+")";
+
+            episode = animeBlock.getElementsByClassName("episode")[0];
+            episode.innerHTML = animeItem.episode;
+            episode.onclick = "setEspisode(this,"+animeItem.animeID+")";
+
+            if(wifi){
+                animeBlock.getElementsByTagName("img")[0].src = animeItem.vision;
+            }
+            
+            seasonNode = document.getElementById(animeItem.season);
+            seasonNode.appendChild(document.createElement("hr"));
+            seasonNode.appendChild(animeBlock);
+
+            console.log("finish a node");
         }
     });
 

@@ -1,9 +1,8 @@
 var mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 var Schema = mongoose.Schema;
-mongoose.connect('mongodb://localhost/bangumiMag');
 
-var db = mongoose.connection;
+var db = mongoose.createConnection('mongodb://localhost/bangumiMag');
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
     console.log("user.js connect to mongodb: bangumiMag");
@@ -97,18 +96,26 @@ exports.user = {
         watchModel.find(
             {username:username,year:year},
             {_id:0},
-            (err,docs)=>{
+            callback
+        )
+    },
+    getStartYear: (username, callback)=>{
+        watchModel.findOne(
+            {username:username},
+            {_id:0},
+            {sort: {year:1}},
+            (err, res)=>{
                 if(err){
-                    throw err; // !!!!
+                    throw err; // !!!!!
                 }
-                callback(err,docs);
+                callback(res.year);
             }
         )
     },
     addAnime: (username, year, animeID, callback)=>{
         watchModel.findOne(
             {username:username,year:year,animeID:animeID},
-            {_id:0, animeOfYear:1},
+            {_id:0},
             (err, doc)=>{
                 if(err){
                     throw err; // !!!!

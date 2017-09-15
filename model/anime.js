@@ -1,11 +1,11 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
-mongoose.connect('mongodb://localhost/bangumiMag');
 
-var db = mongoose.connection;
+
+var db = mongoose.createConnection('mongodb://localhost/bangumiMag');
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
-    console.log("anime.js connect to mongodb: anime");
+    console.log("anime.js connect to mongodb: bangumiMag");
 });
 
 const SEASONS = ['fuyu','haru','natsu','aki'];
@@ -18,7 +18,7 @@ var counterSchema = new Schema({
     }
 });
 
-var counter = mongoose.model("animeCounter", counterSchema,"animeCounter");
+var counter = db.model("animeCounter", counterSchema,"animeCounter");
 
 var animeSchema = new Schema({
     animeID:{
@@ -64,6 +64,7 @@ module.exports = {
         animeModel.find({$or:orList},callback);
     },
     new: (title,year,season,description,vision,labels, callback)=>{
+        // console.log("call new")
         if(labels && !(labels instanceof Array)){
             return callback(Error('illegle labels'));
         }
@@ -78,21 +79,22 @@ module.exports = {
                 }
             }
         );
-        counter.findOneAndUpdate({id:"aID"},{$inc: { seq: 1} }, (err,res)=>{
+        counter.findOneAndUpdate({id:"aID"},{$inc: { seq: 1} }, (err,doc,res)=>{
             if(err){
                 throw err; // !!!!
             }
+            // console.log("counter: ",err,doc,res);
             // doc.animeID=res.seq;
             animeModel.create(
-                {
-                    animeID: res.seq,
+                [{
+                    animeID: doc.seq,
                     title: title,
                     year: year,
                     season: season,
                     description: description,
                     vision: vision,
                     labels: labels
-                },
+                }],
                 callback
             )
         });

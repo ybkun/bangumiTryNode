@@ -9,6 +9,29 @@ let userOnline = {}
 const SEASONS = ['fuyu','haru','natsu','aki'];
 
 
+function buildAnimeList(data, index, ret, callback){
+    if(!(ret instanceof Array)){
+        throw new Error("ret should be an Array");
+    }
+    if(index === data.length){
+        return callback(ret);
+    }
+    var dataItem = data[index];
+    animeModel.getOne(dataItem.animeID,(err, res)=>{
+        // console.log("animeModel.getOne: ", res);
+        var animeItem=res.toJSON();
+                
+        animeItem.priority = dataItem.priority;
+        animeItem.music_flag = dataItem.music_flag;
+        animeItem.episode = dataItem.episode;
+        ret.push(animeItem);
+        // console.log("animeItem: ",animeItem)
+
+        buildAnimeList(data, index+1, ret, callback);
+    });
+}
+
+
 
 module.exports = (server)=>{
     var io = require('socket.io')(server);
@@ -25,26 +48,16 @@ module.exports = (server)=>{
         userOnline[username] = socket.id;
 
         var dt = new Date();
-        userModel.getAnimeList(username,dt.getFullYear,(err,data)=>{
+        userModel.getAnimeList(username,dt.getFullYear(),(err,data)=>{
             if(err){
                 console.error("when client init: ",err);
                 return socket.emit('client init',{errcode:40001,errmsg:"server db error"});
             }
-            var animeList=[];
-            var dataItem;
-            var animeItem;
-            for(var index in data){
-                dataItem = data[index];
-                animeModel.getOne(dataItem.animeID,(err, res)=>{
-                    animeItem=res;
-                    animeItem.priority = dataItem.priority;
-                    animeItem.music_flag = dataItem.music_flag;
-                    animeItem.episode = dataItem.episode;
-                    animeList.push(animeItem);
-                })
-            }
-            socket.emit('client init', animeList);
-        })
+            buildAnimeList(data, 0, [], (animeList)=>{
+                console.log("animeList is ",animeList);
+                socket.emit('client init', animeList);
+            }); 
+        });
         
         socket.on('disconnect', ()=>{
             console.log("%s(%s) disconnect with socket", socket.username, socket.id);

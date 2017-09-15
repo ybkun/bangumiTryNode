@@ -23,6 +23,42 @@ mixin first_year_item
     li.active(id=text)
         a(href="#", onclick=click) #{text}
 
+mixin animeNode
+    .container-fluid#animeNodeTemp
+        .row
+            .col-md-9.pull-right
+                .container-fluid
+                    .row(style="margin-top:3%")
+                        .col-md-6
+                            h2.anime-title animeTitle Here
+                            p.description It's description here
+                        .col-md-6
+                            .container-fluid
+                                .row
+                                    .col-md-6
+                                        p priority  
+                                            a.priority(href="#", onclick="setPriority(this)") 3
+                            .container-fluid
+                                .row
+                                    .col-md-6
+                                        .checkbox
+                                            label
+                                                input.music-flag(type="checkbox", name="music-flag", onclick="setMusicFlag(this)") 
+                                                | Music Flag
+                            .container-fluid
+                                .row
+                                    .col-xs-1
+                                        button.btn.btn-default.btn-xs -
+                                    .col-xs-1
+                                        a.episode(href="#", onclick="setEspisode(this)") 15
+                                    .col-xs-1
+                                        button.btn.btn-primary.btn-xs +
+            
+
+            .col-md-3.pull-left
+                img.img-responsive.img-rounded(width=250, src="")
+            
+
 block variables
   - const page_title = username;
 
@@ -53,7 +89,9 @@ block header
             #navbar.navbar-coolapse.coolapse
                 ul.nav.navbar-nav.navbar-right 
                     li
-                        a(href="#",id="username") #{username}
+                        a(href="#",id="nickname") #{nickname}
+                    li.hidden
+                        a(href="#", id="username") #{username}
                     li
                         a(href="#",onclick="logout()") logout
 
@@ -96,16 +134,6 @@ block content
                         
                     #aki.tab-pane.fade  
                         
-
-.hidden.container#animeNode
-    .row.featurette
-        .col-md-7.col-md-push-5
-            h2.featurette-heading.anime-title
-            p.lead.description
-        .col-md-5.col-md-pull-7.imgDiv
-            img.img-rounded.center-block(data-src="", alt="Responsive image", src="")
-    .row
-        .col-md-3.priority
-            a(href="#", onclick="setPriority()")
-        .col-md-3.music-flag
-        .col-md-3.pull-right
+block hiddens
+    .hidden
+        +animeNode

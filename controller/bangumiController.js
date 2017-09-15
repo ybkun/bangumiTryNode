@@ -16,11 +16,11 @@ exports.main = (req,res)=>{
                 console.error("database error: ",err);
                 return res.send("error in server, please wait a moment and retry");
             }
-            if(data === null){ // first time
+            if(data === null){ // first time, bind info before use
                 return getUserInfo(official,openid,"en",(userInfo)=>{
                     res.render("infoBind",
                         {
-                            nickname:userInfo.nickname,
+                            nickname: userInfo.nickname,
                             openid: userInfo.openid,
                             once: newOnce(openid,600)
                         } 
@@ -31,46 +31,49 @@ exports.main = (req,res)=>{
                 req.session.username = data.username;
                 req.session.openid = data.openid;
                 req.session.nickname = data.nickname;
-                uname = data.nickname;
+                // uname = data.nickname;
 
-                var start=2010;
-                for(key in data.watch){
-                    if(key<start){
-                        start=key;
-                    }
-                }
-                res.render("index",
-                    {
-                        username: uname,
-                        start:start,
-                        end:(new Date()).getFullYear(),
-                        once: newOnce(uname,20)
-                    }
-                );
+                user.getStartYear(data.username, (start)=>{
+                    res.render("index",
+                        {
+                            username: data.username,
+                            nickname: data.nickname,
+                            start:start,
+                            end:(new Date()).getFullYear(),
+                            once: newOnce(data.username,60)
+                        }
+                    );
+                });
+                
             }
         });
     }
     else{
-        user.findUserByName(uname,(err,data)=>{
-            if(err){
-                console.error("database error: ",err);
-                return res.send("error in server, please wait a moment and retry");
-            }
-            var start=2010;
-            for(key in data.watch){
-                if(key<start){
-                    start=key;
-                }
-            }
-            if(req.session.nickname){
-                uname = req.session.nickname;
-            }
+        // user.findUserByName(uname,(err,data)=>{
+        //     if(err){
+        //         console.error("database error: ",err);
+        //         return res.send("error in server, please wait a moment and retry");
+        //     }
+        //     user.getStartYear(data.username, (start)=>{
+        //         res.render("index",
+        //             {
+        //                 username: data.username,
+        //                 nickname: data.nickname,
+        //                 start:start,
+        //                 end:(new Date()).getFullYear(),
+        //                 once: newOnce(uname,20)
+        //             }
+        //         );
+        //     });
+        // });
+        user.getStartYear(uname, (start)=>{
             res.render("index",
                 {
                     username: uname,
-                    start:start,
-                    end:(new Date()).getFullYear(),
-                    once: newOnce(uname,20)
+                    nickname: req.session.nickname,
+                    start: start,
+                    end: (new Date()).getFullYear(),
+                    once: newOnce(uname,60)
                 }
             );
         });
