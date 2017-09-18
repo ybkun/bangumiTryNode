@@ -15,7 +15,6 @@ mixin year_item(text)
     -var click = "selectYear(" + text + ")"
     li(id=text)
         a(href="#",onclick=click) #{text}
-            span.sr-only (current)
 
 mixin first_year_item
     -var text=end
@@ -24,39 +23,38 @@ mixin first_year_item
         a(href="#", onclick=click) #{text}
 
 mixin animeNode
-    .container-fluid#animeNodeTemp
-        .row
-            .col-md-9.pull-right
-                .container-fluid
-                    .row(style="margin-top:3%")
-                        .col-md-6
-                            h2.anime-title animeTitle Here
-                            p.description It's description here
-                        .col-md-6
-                            .container-fluid
-                                .row
-                                    .col-md-6
-                                        p priority  
-                                            a.priority(href="#", onclick="setPriority(this)") 3
-                            .container-fluid
-                                .row
-                                    .col-md-6
-                                        .checkbox
-                                            label
-                                                input.music-flag(type="checkbox", name="music-flag", onclick="setMusicFlag(this)") 
-                                                | Music Flag
-                            .container-fluid
-                                .row
-                                    .col-xs-1
-                                        button.btn.btn-default.btn-xs -
-                                    .col-xs-1
-                                        a.episode(href="#", onclick="setEspisode(this)") 15
-                                    .col-xs-1
-                                        button.btn.btn-primary.btn-xs +
-            
+    .row#animeNodeTemp
+        .col-md-9.pull-right
+            .container-fluid
+                .row(style="margin-top:3%")
+                    .col-md-6
+                        h2.anime-title animeTitle Here
+                        p.description It's description here
+                    .col-md-6
+                        .container-fluid
+                            .row
+                                .col-md-6
+                                    p priority
+                                        a.priority(href="#", onclick="setPriority(this)") -1
+                        .container-fluid
+                            .row
+                                .col-md-6
+                                    .checkbox
+                                        label
+                                            input.music-flag(type="checkbox", name="music-flag", onclick="setMusicFlag(this)") 
+                                            | Music Flag
+                        .container-fluid
+                            .row
+                                .col-xs-1
+                                    button.btn.btn-default.btn-xs -
+                                .col-xs-1
+                                    a.episode(href="#", onclick="setEspisode(this)") -1
+                                .col-xs-1
+                                    button.btn.btn-primary.btn-xs +
+        
 
-            .col-md-3.pull-left
-                img.img-responsive.img-rounded(width=250, src="")
+        .col-md-3.pull-left
+            img.img-responsive.img-rounded(width=250, src="")
             
 
 block variables
@@ -104,7 +102,7 @@ block content
     .hidden(id="once") #{once}
     .container-fluid(id="mainbody")
         .row
-            .col-sm-3.col-md-2.sidebar
+            .col-sm-3.col-md-2.sidebar#sidebar
                 div(style="overflow-y:auto;overflow-x: hidden; height:300px")
                     ul.nav.nav-sidebar
                         +first_year_item
@@ -118,22 +116,26 @@ block content
             .col-sm-9.col-sm-offset-3.col-md-10.col-md-offset-2.main
                 ul#seasontap.nav.nav-tabs
                     li.active(style="width: 25%")
-                        a(href="#fuyu" data-toggle="tab") 冬
+                        a(href="#fuyutab" data-toggle="tab") 冬
                     li(style="width: 25%")
-                        a(href="#haru", data-toggle="tab") 春
+                        a(href="#harutab", data-toggle="tab") 春
                     li(style="width: 25%")
-                        a(href="#natsu" data-toggle="tab") 夏
+                        a(href="#natsutab" data-toggle="tab") 夏
                     li(style="width: 25%")
-                        a(href="#aki" data-toggle="tab") 秋
+                        a(href="#akitab" data-toggle="tab") 秋
                 #myTabContent.tab-content
-                    #fuyu.tab-pane.fade.in.active
+                    #fuyutab.tab-pane.fade.in.active
+                        #fuyu.container-fluid
                         
-                    #haru.tab-pane.fade 
-                        
-                    #natsu.tab-pane.fade    
-                        
-                    #aki.tab-pane.fade  
-                        
+                    #harutab.tab-pane.fade 
+                        #haru.container-fluid
+
+                    #natsutab.tab-pane.fade    
+                        #natsu.container-fluid
+
+                    #akitab.tab-pane.fade  
+                        #aki.container-fluid
+
 block hiddens
-    .hidden
+    .hidden.container-fluid
         +animeNode

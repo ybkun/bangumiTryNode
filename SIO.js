@@ -63,6 +63,20 @@ module.exports = (server)=>{
             console.log("%s(%s) disconnect with socket", socket.username, socket.id);
             delete userOnline[socket.username];
         });
+
+        socket.on("year require", (year)=>{
+            console.log("socket year require")
+            userModel.getAnimeList(socket.username,year,(err,data)=>{
+                if(err){
+                    console.error("year require: ",err);
+                    return socket.emit('year require',{errcode:40001,errmsg:"server db error"});
+                }
+                buildAnimeList(data, 0, [], (animeList)=>{
+                    // console.log("animeList is ",animeList);
+                    socket.emit('year response', animeList);
+                }); 
+            });
+        })
         
     });
 
