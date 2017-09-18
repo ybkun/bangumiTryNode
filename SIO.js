@@ -3,6 +3,7 @@
 const checkRequest = require("./util/checkRequest");
 const checkOnce = checkRequest.checkOnce;
 const userModel = require("./model/user").user;
+const watchModel = require("./model/user").watch;
 const animeModel = require("./model/anime");
 
 let userOnline = {}
@@ -34,7 +35,9 @@ function buildAnimeList(data, index, ret, callback){
 
 
 module.exports = (server)=>{
-    var io = require('socket.io')(server);
+    var io = require('socket.io')(server,{
+        pingTimeout: 600000  // 10 min
+    });
     
     io.on("connection", (socket)=>{
         let username=socket.handshake.query.username;
@@ -68,15 +71,25 @@ module.exports = (server)=>{
             console.log("socket year require")
             userModel.getAnimeList(socket.username,year,(err,data)=>{
                 if(err){
-                    console.error("year require: ",err);
-                    return socket.emit('year require',{errcode:40001,errmsg:"server db error"});
+                    console.error("in year require event: ",err);
+                    return socket.emit('year response',{errcode:40001,errmsg:"server db error"});
                 }
                 buildAnimeList(data, 0, [], (animeList)=>{
                     // console.log("animeList is ",animeList);
                     socket.emit('year response', animeList);
                 }); 
             });
-        })
+        });
+
+        socket.on("set episode", (animeID, episode)=>{
+            watchModel.setEpisode(socket.username, animeID, episode);
+        });
+        socket.on("set priority", (animeID, priority)=>{
+            watchModel.setPriority(socket.username, animeID, priority);
+        });
+        socket.on("set music", (animeID, flag)=>{
+            watchModel.setMusic(socket.username,animeID,flag);
+        });
         
     });
 

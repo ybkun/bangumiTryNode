@@ -1,12 +1,5 @@
 extends layout
 
-mixin anime(title, priority, espisode, day, total, imgurl)
-    .container anime
-
-mixin animeContainer(...animes)
-    .container
-
-
 mixin button_in_dropdown(text,link)
     li 
         a(href=link) #{text}
@@ -35,7 +28,7 @@ mixin animeNode
                             .row
                                 .col-md-6
                                     p priority
-                                        a.priority(href="#", onclick="setPriority(this)") -1
+                                        a.priority(href="#") -1
                         .container-fluid
                             .row
                                 .col-md-6
@@ -46,11 +39,11 @@ mixin animeNode
                         .container-fluid
                             .row
                                 .col-xs-1
-                                    button.btn.btn-default.btn-xs -
+                                    button.btn.btn-default.btn-xs.episodeDown -
                                 .col-xs-1
-                                    a.episode(href="#", onclick="setEspisode(this)") -1
+                                    a.episode(href="#") -1
                                 .col-xs-1
-                                    button.btn.btn-primary.btn-xs +
+                                    button.btn.btn-primary.btn-xs.episodeUp +
         
 
         .col-md-3.pull-left

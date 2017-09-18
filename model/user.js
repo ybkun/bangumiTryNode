@@ -74,6 +74,29 @@ var userModel = db.model('userInfo',userSchema);
 
 var watchModel = db.model("watch",watchSchema);
 
+
+function watchSet(username, animeID, opt){
+    watchModel.update(
+        {username:username, animeID:animeID},
+        opt,
+        (err, raw)=>{
+            if(err){console.error(err);}
+        }
+    )
+}
+
+exports.watch = {
+    setEpisode: (username, animeID, episode)=>{
+        watchSet(username,animeID,{episode:episode});
+    },
+    setPriority: (username, animeID, priority)=>{
+        watchSet(username,animeID,{priority:priority});
+    },
+    setMusic: (username, animeID, flag)=>{
+        watchSet(username,animeID,{music_flag:flag});
+    }
+}
+
 exports.user = {
     findUserByName: (username, callback)=>{
         userModel.findOne(

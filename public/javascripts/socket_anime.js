@@ -24,9 +24,6 @@ $(function(){
     });
 
     socket.on("client init", (animeList, wifi)=>{
-        console.log("Event: client init");
-        console.log(animeList);
-
         putupAnime(animeList, wifi);
     });
 
@@ -35,7 +32,6 @@ $(function(){
     });
 
     socket.on("year response", (animeList, wifi)=>{
-        console.log("year response",animeList);
         clearTabs(()=>{putupAnime(animeList,wifi);});
         
     });
@@ -55,16 +51,13 @@ function getBlankAnimeNode(){
 async function putupAnime(animeList, wifi, callback){
     var animeItem;
     var animeBlock;
-    var priority;
-    var checkbox;
-    var episode;
-
-    var seasonNode;
+    // var priority;
+    // var checkbox;
+    // var episode;
+    // var seasonNode;
     
     for(var index in animeList){
         animeItem = animeList[index];
-        
-        console.log("handling ",animeItem);
 
         animeBlock = await getBlankAnimeNode();
         animeBlock.setAttribute("id",animeItem.animeID);
@@ -72,13 +65,16 @@ async function putupAnime(animeList, wifi, callback){
         animeBlock.getElementsByClassName("description")[0].innerHTML = animeItem.description;
 
         animeBlock.getElementsByClassName("priority")[0].innerHTML = animeItem.priority;;
-        animeBlock.getElementsByClassName("priority")[0].onclick = "setPriority("+animeItem.animeID+")";
+        animeBlock.getElementsByClassName("priority")[0].setAttribute("onclick", "setPriority(this,"+animeItem.animeID+")");
         
         animeBlock.getElementsByClassName("music-flag")[0].checked = animeItem.music_flag;
-        animeBlock.getElementsByClassName("music-flag")[0].onclick = "setMusicFlag(this,"+animeItem.animeID+")";
+        animeBlock.getElementsByClassName("music-flag")[0].setAttribute("onclick", "setMusicFlag(this,"+animeItem.animeID+")");
 
         animeBlock.getElementsByClassName("episode")[0].innerHTML = animeItem.episode;
-        animeBlock.getElementsByClassName("episode")[0].onclick = "setEspisode(this,"+animeItem.animeID+")";
+        animeBlock.getElementsByClassName("episode")[0].setAttribute("onclick", "setEpisode("+animeItem.animeID+")");
+
+        animeBlock.getElementsByClassName("episodeDown")[0].setAttribute("onclick", "episodeButton("+animeItem.animeID+",-1)");
+        animeBlock.getElementsByClassName("episodeUp")[0].setAttribute("onclick", "episodeButton("+animeItem.animeID+",1)");
 
         if(wifi){
             animeBlock.getElementsByTagName("img")[0].src = animeItem.vision;
@@ -87,11 +83,8 @@ async function putupAnime(animeList, wifi, callback){
         tabs[animeItem.season].appendChild(document.createElement("hr"));
         tabs[animeItem.season].appendChild(animeBlock);
 
-        console.log("finish a node");
     }
-    console.log("putupAnime end");
     storeInCache(selectedYear)
-    console.log("after storeInCache")
 }
 
 /**
@@ -105,7 +98,6 @@ function clearTabs(callback){
 }
 
 function storeInCache(year){
-    console.log("call storeInCache")
     delete animeCache[year];
     animeCache[year] = {
         fuyu: tabs.fuyu.innerHTML,
@@ -113,15 +105,8 @@ function storeInCache(year){
         natsu: tabs.natsu.innerHTML,
         aki: tabs.aki.innerHTML
     };
-    console.log("end of storeInCache")
 }
 
-/**
- * 
- * @param {Number} year
- * 
- * remove div then append div in cache 
- */
 function resumeFromCache(year){
     for(var key in tabs){
         tabs[key].innerHTML = animeCache[year][key];
@@ -129,7 +114,82 @@ function resumeFromCache(year){
     }
 }
 
-function episodeAdd(year,animeID){}
+function _setEpisode_cluser(){
+    let optList = {};
+    return function _setEpisode_inside(animeID, episode){
+        if(episode<0) return false;
+        optList[animeID] = optList[animeID]? optList[animeID]:{};
+        var oldTimer = optList[animeID].timer;
+        if(oldTimer){
+            clearTimeout(oldTimer);
+        }
+        optList[animeID].timer = setTimeout(()=>{
+            socket.emit("set episode", animeID, episode);
+            delete optList[animeID];
+        },2000);
+        optList[animeID].episode = episode;
+    }
+}
+let _setEpisode = _setEpisode_cluser();
+
+function setEpisode(animeID){
+    var animeBlock = document.getElementById(animeID);
+    var originEpisode =  animeBlock.getElementsByClassName("episode")[0].innerHTML;
+    var newEpisode = prompt("input a number",originEpisode)-0;
+    if(newEpisode && newEpisode>0){
+        _setEpisode(animeID,newEpisode);
+        animeBlock.getElementsByClassName("episode")[0].innerHTML = newEpisode;
+    }
+    else{
+        alert("your input is not a number")
+    }
+}
+
+function episodeButton(animeID, variation){
+    var animeBlock = document.getElementById(animeID);
+    var originEpisode = animeBlock.getElementsByClassName("episode")[0].innerHTML - 0;
+    var newEpisode = Math.floor(originEpisode+variation);
+    if(newEpisode<0) return false;
+    animeBlock.getElementsByClassName("episode")[0].innerHTML = newEpisode;
+    _setEpisode(animeID, newEpisode);
+}
+
+function _setMusicFlag_cluser(){
+    let optList={};
+    return function _setMusicFlag_inside(checkbox, animeID){
+        optList[animeID] = optList[animeID]? optList[animeID]:{};
+        var oldTimer = optList[animeID].timer;
+        if(oldTimer){
+            clearTimeout(oldTimer);
+        }
+        optList[animeID].timer = setTimeout(()=>{
+            socket.emit("set music", animeID, checkbox.checked);
+            delete optList[animeID];
+        },2000);
+    }
+}
+let setMusicFlag = _setMusicFlag_cluser();
+
+function _setPriority_cluser(){
+    let optList={};
+    return function _setMusicFlag_inside(a,animeID){
+        var priority = Math.floor(prompt("set priority"));
+        if(!(priority>0 && priority<=10)){
+            return alert("input is not a valid number(1~10)");
+        }
+        optList[animeID] = optList[animeID]? optList[animeID]:{};
+        var oldTimer = optList[animeID].timer;
+        if(oldTimer){
+            clearTimeout(oldTimer);
+        }
+        optList[animeID].timer = setTimeout(()=>{
+            socket.emit("set priority", animeID, priority);
+            delete optList[animeID];
+        },2000);
+        a.innerHTML = priority;
+    }
+}
+let setPriority = _setPriority_cluser();
 
 function selectYear(year){
     var before = selectedYear;
