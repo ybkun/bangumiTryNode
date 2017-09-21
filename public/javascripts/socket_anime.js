@@ -4,15 +4,28 @@ var tabs = { // div in tab
     "natsu" : document.getElementById("natsu"),
     "aki" : document.getElementById("aki")
 };
+const SEASONS = {
+    "fuyu": "冬",
+    "haru": "春",
+    "natsu": "夏",
+    "aki": "秋"
+}
 
 var dt = new Date();
 var selectedYear = dt.getFullYear();
 
 var animeCache = {};
-var socket;
+
+
+function wait(){
+    $("#alertModal").modal("show");
+}
+function waitend(){
+    $("#alertModal").modal("hide");
+}
 
 $(function(){    
-    socket = io({
+    var socket = io({
         query:{
             username: document.getElementById("username").innerHTML,
             once: document.getElementById("once").innerHTML
@@ -24,7 +37,7 @@ $(function(){
     });
 
     socket.on("client init", (animeList, wifi)=>{
-        putupAnime(animeList, wifi);
+        putupAnime(tabs, animeList, wifi).then((value)=>{waitend()});
     });
 
     socket.on("reconnect",(attemptNum)=>{
@@ -32,8 +45,31 @@ $(function(){
     });
 
     socket.on("year response", (animeList, wifi)=>{
-        clearTabs(()=>{putupAnime(animeList,wifi);});
-        
+        clearTabs(()=>{putupAnime(tabs, animeList,wifi);});
+        waitend();
+    });
+
+    socket.on("search response",(animeList, wifi)=>{ /** animeList only contents animes not in user watch list */
+        var modalBodyDOM = document.getElementById("myModalBody");
+        var animeItem;
+        var animeBlock;
+        var seasonFlag;
+        modalBodyDOM.innerHTML="";
+        for(var index in animeList){
+            if(seasonFlag !== animeItem.season){
+                modalBodyDOM.appendChild(document.createElement("hr"));
+                seasonFlag = animeItem.season;
+            }
+            animeItem = animeList[index];
+            animeBlock = document.getElementById("animeAdd").cloneNode(true);
+            animeBlock.setAttribute("id",animeItem.animeID);
+            animeBlock.getElementsByClassName("anime-title")[0].innerHTML = animeItem.title;
+            animeBlock.getElementsByClassName("description")[0].innerHTML = animeItem.description;
+            animeBlock.getElementsByClassName("season")[0].innerHTML = SEASONS[animeItem.season];
+            modalBodyDOM.appendChild(animeBlock);
+        }
+        waitend();
+        $("#animeAddModal").modal("show");
     });
 
 })
@@ -44,17 +80,10 @@ function getBlankAnimeNode(){
     });
 }
 
-// function getSeasonNdoe(season, callback){
-//     callback(tabs[season][0])
-// }
 
-async function putupAnime(animeList, wifi, callback){
+async function putupAnime(tabs, animeList, wifi, callback){
     var animeItem;
     var animeBlock;
-    // var priority;
-    // var checkbox;
-    // var episode;
-    // var seasonNode;
     
     for(var index in animeList){
         animeItem = animeList[index];
@@ -63,6 +92,8 @@ async function putupAnime(animeList, wifi, callback){
         animeBlock.setAttribute("id",animeItem.animeID);
         animeBlock.getElementsByClassName("anime-title")[0].innerHTML = animeItem.title;
         animeBlock.getElementsByClassName("description")[0].innerHTML = animeItem.description;
+
+        animeBlock.getElementsByClassName("season")[0].innerHTML = SEASONS[animeItem.season];
 
         animeBlock.getElementsByClassName("priority")[0].innerHTML = animeItem.priority;;
         animeBlock.getElementsByClassName("priority")[0].setAttribute("onclick", "setPriority(this,"+animeItem.animeID+")");
@@ -84,7 +115,7 @@ async function putupAnime(animeList, wifi, callback){
         tabs[animeItem.season].appendChild(animeBlock);
 
     }
-    storeInCache(selectedYear)
+    storeInCache(selectedYear);
 }
 
 /**
@@ -203,8 +234,19 @@ function selectYear(year){
     else{
         console.log("no cache: ",year);
         socket.emit("year require", year);
+        wait();
     }
 
     document.getElementById(before).removeAttribute("class");
     document.getElementById(year).setAttribute("class","active");
+}
+
+function searchAnime(){
+    wait();
+    var title = $("#searchTitle").val();
+    var year = $("#searchYear").val()-0;
+    if(!(title || year)){
+        return alert("can't search with empty options");
+    }
+    socket.emit("search anime",title,year);
 }

@@ -15,6 +15,36 @@ mixin first_year_item
     li.active(id=text)
         a(href="#", onclick=click) #{text}
 
+mixin animeControl
+    div
+        .container-fluid
+            .row
+                .col-md-6
+                    p priority
+                        a.priority(href="#") -1
+        .container-fluid
+            .row
+                .col-md-6
+                    .checkbox
+                        label
+                            input.music-flag(type="checkbox", name="music-flag", onclick="setMusicFlag(this)") 
+                            | Music Flag
+        .container-fluid
+            .row
+                .col-xs-1
+                    button.btn.btn-default.btn-xs.episodeDown -
+                .col-xs-1
+                    a.episode(href="#") -1
+                .col-xs-1
+                    button.btn.btn-primary.btn-xs.episodeUp +
+
+mixin animeAdd
+    div
+        .container-fluid
+            .row
+                .col-xs-1
+                    button.btn.btn-default.btn-xs.animeAdd ADD
+
 mixin animeNode
     .row#animeNodeTemp
         .col-md-9.pull-right
@@ -22,33 +52,26 @@ mixin animeNode
                 .row(style="margin-top:3%")
                     .col-md-6
                         h2.anime-title animeTitle Here
+                        h4
+                            strong.season
                         p.description It's description here
                     .col-md-6
-                        .container-fluid
-                            .row
-                                .col-md-6
-                                    p priority
-                                        a.priority(href="#") -1
-                        .container-fluid
-                            .row
-                                .col-md-6
-                                    .checkbox
-                                        label
-                                            input.music-flag(type="checkbox", name="music-flag", onclick="setMusicFlag(this)") 
-                                            | Music Flag
-                        .container-fluid
-                            .row
-                                .col-xs-1
-                                    button.btn.btn-default.btn-xs.episodeDown -
-                                .col-xs-1
-                                    a.episode(href="#") -1
-                                .col-xs-1
-                                    button.btn.btn-primary.btn-xs.episodeUp +
-        
-
+                        +animeControl              
         .col-md-3.pull-left
             img.img-responsive.img-rounded(width=250, src="")
-            
+
+mixin animeAddNode
+    .row#animeAdd
+        .col-md-9.pull-right
+            .container-fluid
+                .row(style="margin-top:3%")
+                    .col-md-6
+                        h2.anime-title animeTitle Here
+                        p.description It's description here
+                    .col-md-6
+                        +animeAdd   
+        .col-md-3.pull-left
+            img.img-responsive.img-rounded(width=250, src="")
 
 block variables
   - const page_title = username;
@@ -62,7 +85,6 @@ append stylesheets
 
 append javascripts
     script(src="https://cdn.socket.io/socket.io-1.2.0.js")
-    script(src="https://code.jquery.com/jquery-1.11.1.js")
     script(src="/javascripts/socket_anime.js")
     script(src="/socket.io/socket.io.js")
 
@@ -87,8 +109,24 @@ block header
                         a(href="#",onclick="logout()") logout
 
                         
-                form.navbar-form.navbar-right
-                    input.form-control(type="text",placeholder="Search...")
+                ul.nav.navbar-nav.navbar-right
+                    li.btn-group
+                        button.btn.btn-primary.dropdown-toggle(type="button",data-toggle="dropdown",aria-haspopup="true",aria-expanded="false") Search
+                            span.caret
+                        ul.dropdown-menu
+                            li
+                                p
+                                    a title
+                                    input.form-control#searchTitle(type="text",placeholder="title...")
+                            li
+                                p
+                                    a year
+                                    input.form-control#searchYear(type="text",placeholder="year...")
+                            li.divider(role="sparator")
+                            li
+                                button.btn.btn-default(onclick="searchAnime()") search
+                                
+                            
 
                 
 block content
@@ -129,6 +167,23 @@ block content
                     #akitab.tab-pane.fade  
                         #aki.container-fluid
 
+block footer
+    .modal.fade#animeAddModal(tabindex="-1",role="dialog",aria-labelledby="myModalLabel",aria-hidden="true")
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    button.close(type="button",data-dismiss="modal" aria-hidden="true") inbutton
+                    h4.modal-title#myModalTitle Add Anime
+                .modal-body#myModalBody
+
+    .modal.fade#alertModal(tabindex="-1",role="dialog",aria-labelledby="myModalLabel",aria-hidden="true")
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h4 waiting...
+
+
 block hiddens
     .hidden.container-fluid
         +animeNode
+        +animeAddNode
