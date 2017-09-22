@@ -50,8 +50,6 @@ function randomStr(length){
 
 let onceList = {};
 exports.newOnce = function(user,sec){
-  console.log("call newOnce\n",onceList);
-
   if(!sec){
     sec = 120;
   }
@@ -66,12 +64,12 @@ exports.newOnce = function(user,sec){
     console.log("once timeout:%s(%s)",onceList[user].once, user)
     delete onceList[user];
   },sec*1000);
-  console.log("end of  newOnce\n",onceList);
+  console.log("newOnce: "+once+"("+user+")");
   return once;
 }
 exports.checkOnce = function(openid,once){
-  console.log("call checkOnce")
-  console.log("oncelist: ",onceList)
+  // console.log("call checkOnce")
+  // console.log("oncelist: ",onceList)
   // console.log("query:",query)
   // let openid = query.user;
   // let once = query.once;

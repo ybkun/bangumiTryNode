@@ -13,8 +13,10 @@ const SEASONS = {
 
 var dt = new Date();
 var selectedYear = dt.getFullYear();
-
 var animeCache = {};
+var socket;
+
+var debugtemp;
 
 
 function wait(){
@@ -25,7 +27,7 @@ function waitend(){
 }
 
 $(function(){    
-    var socket = io({
+    socket = io({
         query:{
             username: document.getElementById("username").innerHTML,
             once: document.getElementById("once").innerHTML
@@ -50,29 +52,68 @@ $(function(){
     });
 
     socket.on("search response",(animeList, wifi)=>{ /** animeList only contents animes not in user watch list */
+        console.log("get search response: ",animeList)
         var modalBodyDOM = document.getElementById("myModalBody");
         var animeItem;
         var animeBlock;
         var seasonFlag;
         modalBodyDOM.innerHTML="";
         for(var index in animeList){
+            animeItem = animeList[index];
             if(seasonFlag !== animeItem.season){
                 modalBodyDOM.appendChild(document.createElement("hr"));
                 seasonFlag = animeItem.season;
             }
-            animeItem = animeList[index];
             animeBlock = document.getElementById("animeAdd").cloneNode(true);
             animeBlock.setAttribute("id",animeItem.animeID);
             animeBlock.getElementsByClassName("anime-title")[0].innerHTML = animeItem.title;
             animeBlock.getElementsByClassName("description")[0].innerHTML = animeItem.description;
             animeBlock.getElementsByClassName("season")[0].innerHTML = SEASONS[animeItem.season];
+            if(wifi){
+                animeBlock.getElementsByTagName("img")[0].src = animeItem.vision;
+            }
+            
+            // set add button here
+            animeBlock.getElementsByClassName("animeAdd2Watch")[0].setAttribute("onclick", "add2watch(this)")
+
             modalBodyDOM.appendChild(animeBlock);
         }
         waitend();
         $("#animeAddModal").modal("show");
     });
+    socket.on("add2watch fail",(animeID)=>{
+        waitend();
+        var failedNode = document.getElementById(animeId);
+        failedNode.getElementsByClassName("animeAdd2Watch")[0].disabled = false;
+        var title = failedNode.getElementsByClassName("anime-title")[0].innerHTML;
+        alert("add anime failed: "+title);
+    });
+    socket.on("add2watch success",(res)=>{
+        console.log("add2watch success: ",res)
+        console.log(animeCache)
+        var resyear = res[0].year
+        if(animeCache[resyear]){
+            var yearnow = selectedYear;
+            selectYear(resyear, ()=>{
+                // after resume
+                putupAnime(tabs,res,false,()=>{console.log("putupAnime end")});
+            });
+            selectYear(yearnow);
+        }
+        waitend();
+    });
+
 
 })
+
+function add2watch(button_add2watch){
+    button_add2watch.disabled = true;
+    wait();
+    // debugtemp = button_add2watch;
+    var animeNode = getAncestor(button_add2watch,9); // warning: need change with html structure
+    var animeID = animeNode.getAttribute("id");
+    socket.emit("add2watch", animeID);
+}
 
 function getBlankAnimeNode(){
     return new Promise(function(resovle,reject){
@@ -84,6 +125,10 @@ function getBlankAnimeNode(){
 async function putupAnime(tabs, animeList, wifi, callback){
     var animeItem;
     var animeBlock;
+
+    if(!(callback instanceof Function)){
+        callback = ()=>{};
+    }
     
     for(var index in animeList){
         animeItem = animeList[index];
@@ -115,7 +160,7 @@ async function putupAnime(tabs, animeList, wifi, callback){
         tabs[animeItem.season].appendChild(animeBlock);
 
     }
-    storeInCache(selectedYear);
+    storeInCache(selectedYear,callback);
 }
 
 /**
@@ -128,7 +173,7 @@ function clearTabs(callback){
     setTimeout(callback,0);
 }
 
-function storeInCache(year){
+function storeInCache(year, callback){
     delete animeCache[year];
     animeCache[year] = {
         fuyu: tabs.fuyu.innerHTML,
@@ -136,13 +181,14 @@ function storeInCache(year){
         natsu: tabs.natsu.innerHTML,
         aki: tabs.aki.innerHTML
     };
+    callback();
 }
 
-function resumeFromCache(year){
+function resumeFromCache(year, callback){
     for(var key in tabs){
         tabs[key].innerHTML = animeCache[year][key];
-        // tabs[key].appendChild(animeCache[year][key]);
     }
+    callback();
 }
 
 function _setEpisode_cluser(){
@@ -222,21 +268,29 @@ function _setPriority_cluser(){
 }
 let setPriority = _setPriority_cluser();
 
-function selectYear(year){
+// callback works only in resumeFromCache or year didn't change
+function selectYear(year, callback){
+    if(!(callback instanceof Function)){
+        callback = ()=>{};
+    }
+    if(year == selectedYear){
+        callback();
+        return true;
+    }
     var before = selectedYear;
     selectedYear = year;
     
-    storeInCache(before);
-    if(animeCache[year]){
-        console.log("has cache: ",year);
-        resumeFromCache(year);
-    }
-    else{
-        console.log("no cache: ",year);
-        socket.emit("year require", year);
-        wait();
-    }
-
+    storeInCache(before, ()=>{
+        if(animeCache[year]){
+            console.log("has cache: ",year);
+            resumeFromCache(year, callback);
+        }
+        else{
+            console.log("no cache: ",year);
+            socket.emit("year require", year);
+            wait();
+        }
+    });
     document.getElementById(before).removeAttribute("class");
     document.getElementById(year).setAttribute("class","active");
 }
@@ -246,7 +300,21 @@ function searchAnime(){
     var title = $("#searchTitle").val();
     var year = $("#searchYear").val()-0;
     if(!(title || year)){
-        return alert("can't search with empty options");
+        return alert("can't search with empty/illegle options");
     }
     socket.emit("search anime",title,year);
+    console.log("search: ",title,year);
+}
+
+
+function getAncestor(node,distance){
+    var ret=node;
+    distance-=0;
+    if(!(distance && distance>0)){
+        return false;
+    }
+    for(var i=0;i<distance;i++){
+        ret = ret.parentNode;
+    }
+    return ret;
 }

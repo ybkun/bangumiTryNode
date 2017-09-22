@@ -7,7 +7,7 @@ const watchModel = require("./model/user").watch;
 const animeModel = require("./model/anime");
 
 let userOnline = {}
-const SEASONS = ['fuyu','haru','natsu','aki'];
+const SEASONS = {'fuyu':1,'haru':2,'natsu':3,'aki':4};
 
 
 function buildAnimeList(data, index, ret, callback){
@@ -57,7 +57,7 @@ module.exports = (server)=>{
                 return socket.emit('client init',{errcode:40001,errmsg:"server db error"});
             }
             buildAnimeList(data, 0, [], (animeList)=>{
-                console.log("animeList is ",animeList);
+                // console.log("animeList is ",animeList);
                 socket.emit('client init', animeList);
             }); 
         });
@@ -90,8 +90,77 @@ module.exports = (server)=>{
         socket.on("set music", (animeID, flag)=>{
             watchModel.setMusic(socket.username,animeID,flag);
         });
+
+        socket.on("search anime", (title, year)=>{
+            searchAnime(socket.username,title,year,(res)=>{
+                // res is handled by eliminateWatchedFromSearch()
+                res.sort(seasonCompare);
+                // console.log("title&year: ",title,year);
+                // console.log("res: ",res);
+                socket.emit("search response",res);
+            });
+        });
+        socket.on("add2watch",(animeID)=>{
+            animeModel.getOne(animeID, (err,res)=>{
+                if(err){
+                    socket.emit("add2watch fail",animeID);
+                    return console.error("Error occured when add2watch: ",socket.username,err);
+                }
+                userModel.addAnime(socket.username,res.year,animeID, (err,res)=>{
+                    if(err){
+                        socket.emit("add2watch fail",animeID);
+                        return console.error("Error occured when userModel.addAnime in add2watch: ",socket.username,err);
+                    }
+                    buildAnimeList(res,0,[],(list)=>{
+                        socket.emit("add2watch success", list);
+                        console.log("add2watch success: ",socket.username, res);
+                    });
+                });
+            });
+        });
         
     });
 
     return io;
+}
+
+function searchAnime(username, title, year, callback){
+    var conditions = {};
+    year = year-0;
+    if(title){conditions.title=title}
+    if(year){conditions.year=year}
+    // console.log("in searchAnime: ", conditions)
+    animeModel.search(conditions,(res)=>{
+        eliminateWatchedFromSearch(username,res,callback);
+    }); 
+}
+
+function eliminateWatchedFromSearch(username,docs,callback){
+    var ids = [];
+    for(var index in docs){
+        ids.push({animeID: docs[index].animeID});
+    }
+    watchModel.findMany(username, ids, (res)=>{
+        var idoc=0;
+        var ires=0;
+        while(idoc<docs.length && ires<res.length){
+            while(docs[idoc]<res[ires]){
+                idoc+=1;
+            }
+            if(docs[idoc].animeID == res[ires].animeID){
+                docs.splice(idoc,1);
+            }
+            ires+=1;
+        }
+        callback(docs);
+    });
+}
+
+function seasonCompare(a,b){
+    if(SEASONS[a.season] < SEASONS[b.season]){
+        return -1;
+    }
+    else{
+        return 1;
+    }
 }

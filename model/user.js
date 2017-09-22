@@ -94,6 +94,16 @@ exports.watch = {
     },
     setMusic: (username, animeID, flag)=>{
         watchSet(username,animeID,{music_flag:flag});
+    },
+    findMany: (username, orList, callback)=>{
+        watchModel.find(
+            {username: username,  $or:orList},
+            {_id:0, animeID:1},
+            (err,res)=>{
+                if(err){throw err} // !!!!
+                callback(res);
+            }
+        );
     }
 }
 

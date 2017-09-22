@@ -63,6 +63,12 @@ module.exports = {
         }
         animeModel.find({$or:orList},callback);
     },
+    search: (conditions,callback)=>{
+        animeModel.find(conditions, {_id:0}, {sort:{animeID:1}}, (err,res)=>{
+            if(err){throw err} // !!!!
+            callback(res); // get all
+        });
+    },
     new: (title,year,season,description,vision,labels, callback)=>{
         // console.log("call new")
         if(labels && !(labels instanceof Array)){
