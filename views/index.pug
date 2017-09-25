@@ -19,12 +19,12 @@ mixin animeControl
     div
         .container-fluid
             .row
-                .col-md-6
+                .col-md-3
                     p priority
                         a.priority(href="#") -1
         .container-fluid
             .row
-                .col-md-6
+                .col-md-3
                     .checkbox
                         label
                             input.music-flag(type="checkbox", name="music-flag", onclick="setMusicFlag(this)") 
@@ -50,12 +50,12 @@ mixin animeNode
         .col-md-9.pull-right
             .container-fluid
                 .row(style="margin-top:3%")
-                    .col-md-6
+                    .col-md-4
                         h2.anime-title animeTitle Here
                         h4
                             strong.season season
                         p.description It's description here
-                    .col-md-6
+                    .col-md-3
                         +animeControl              
         .col-md-3.pull-left
             img.img-responsive.img-rounded(width=250, src="")

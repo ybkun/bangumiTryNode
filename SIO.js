@@ -1,4 +1,4 @@
-// var session = require('./mySession');
+var sessionStore = require('./mySession').sessionStore;
 
 const checkRequest = require("./util/checkRequest");
 const checkOnce = checkRequest.checkOnce;
@@ -39,16 +39,21 @@ module.exports = (server)=>{
         pingTimeout: 600000  // 10 min
     });
     
+    
     io.on("connection", (socket)=>{
         let username=socket.handshake.query.username;
         let once = socket.handshake.query.once;
         console.log("new connection:%s(%s)", username, socket.id);
         if(!checkOnce(username,once)){
             console.log("%s seems to be an attacker", socket.id);
-            return socket.disconnect();
+            return socket.disconnect(true);
         }
+
         socket.username = username;
-        userOnline[username] = socket.id;
+        if(userOnline[username]){ // avoid memory leak
+            repeatedLogin(userOnline[username]);
+        }
+        userOnline[username] = socket;
 
         var dt = new Date();
         userModel.getAnimeList(username,dt.getFullYear(),(err,data)=>{
@@ -59,7 +64,12 @@ module.exports = (server)=>{
             buildAnimeList(data, 0, [], (animeList)=>{
                 // console.log("animeList is ",animeList);
                 socket.emit('client init', animeList);
-            }); 
+            });
+        });
+
+        socket.on("user logout",()=>{
+            console.log("%s(%s) logout", socket.username,socket.id);
+            delete userOnline[socket.username];
         });
         
         socket.on('disconnect', ()=>{
@@ -163,4 +173,10 @@ function seasonCompare(a,b){
     else{
         return 1;
     }
+}
+
+
+function repeatedLogin(oldSocket){
+    oldSocket.emit("repeatedLogin");
+    setTimeout(oldSocket.disconnect(true),100);
 }

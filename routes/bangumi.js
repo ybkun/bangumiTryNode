@@ -26,6 +26,23 @@ router.get('/login', (req,res)=>{
     res.render('login');
 })
 
+router.get('/logout',(req,res)=>{
+    console.log(req.session)
+    if(!req.session.username){
+        return res.status(500).send('Not Acceptable');
+    }
+    var uname = req.session.username;
+    req.session.destroy((err)=>{
+        if(err){
+            console.error("session logout error when logout: ",err);
+        }
+        else{
+            console.log("session destroyed: ", uname);
+        }
+    });
+    res.send("logout succeed");
+})
+
 router.post('/login',loginController);
 router.post('/bind',bangumiController.infobind)
 

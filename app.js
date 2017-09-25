@@ -4,7 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('./logger');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var sessionMidware = require('./mySession');
+var mySession = require('./mySession');
 
 var index = require('./routes/index');
 var bangumi = require('./routes/bangumi');
@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(sessionMidware);
+app.use(mySession.midware);
 
 
 app.use('/', index);

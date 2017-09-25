@@ -20,10 +20,20 @@ var debugtemp;
 
 
 function wait(){
+    document.getElementById("alertMsg").innerHTML = "waiting...";
     $("#alertModal").modal("show");
 }
 function waitend(){
     $("#alertModal").modal("hide");
+}
+function modalAlert(msg){
+    document.getElementById("alertMsg").innerHTML = msg;
+    $("#alertModal").modal("show");
+}
+
+function logout(){
+    socket.emit("user logout");
+    window.location = "/bangumi/logout";
 }
 
 $(function(){    
@@ -34,6 +44,12 @@ $(function(){
         }
     });
     
+    socket.on("repeatedLogin",()=>{
+        modalAlert("this account is logining from another divice");
+        socket.close();
+        window.location = 'bangumi/login';
+    })
+
     socket.on("disconnect",(reason)=>{
         alert("disconnect with server for "+reason);
     });
@@ -300,7 +316,7 @@ function searchAnime(){
     var title = $("#searchTitle").val();
     var year = $("#searchYear").val()-0;
     if(!(title || year)){
-        return alert("can't search with empty/illegle options");
+        return modalAlert("can't search with empty/illegle options");
     }
     socket.emit("search anime",title,year);
     console.log("search: ",title,year);
